@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Environments / IDE
+.vscode/
+.idea/
+
+# Docker
+*.pyc
+*.pyo
+*.pyd
+build/
+dist/
+
+# Tests
+.coverage
+htmlcov/
+
+# data artefacts
+data/
+*.faiss
+embeddings*
+embeddings/
+index/
+
