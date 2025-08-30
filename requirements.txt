@@ -1,11 +1,25 @@
-transformers~=4.55.0
-faiss-cpu~=1.12.0
 fastapi~=0.116.1
 uvicorn[standard]==0.29.0
 pydantic==2.7.1
-python-multipart==0.0.9
+python-multipart==0.0.19
 
-numpy~=2.3.2
-tqdm~=4.67.1
-datasets~=4.0.0
-torch~=2.7.1
+duckdb>=0.10
+pyarrow
+pandas
+
+# --- core ML/NLP (current, keep as pinned earlier) ---
+torch>=2.2,<3
+transformers>=4.40,<5
+huggingface-hub>=0.34,<1.0
+datasets<4.0.0
+
+# --- vector search & storage ---
+duckdb>=0.10
+pyarrow>=15
+pandas>=2.2
+
+# optional helpers (safe to keep)
+faiss-cpu>=1.8.0       # keep for parity vs FAISS while migrating
+zstandard>=0.22.0      # (optional) if you want pure-Python zstd utils
+tqdm
+numpy

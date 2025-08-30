@@ -25,3 +25,11 @@ embeddings*
 embeddings/
 index/
 
+# duckdb & parquet artifacts
+duckdb/
+parquet/
+.duckdb_extensions/
+
+# env files
+.env
+.envrc
