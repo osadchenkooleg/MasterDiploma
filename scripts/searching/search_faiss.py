@@ -1,12 +1,14 @@
 # python scripts/search_faiss.py --index_dir index/global --query_file sample.java --k 10
 # python scripts/search_faiss.py --index_dir index/global --query_file sample.py --k 10 --lang_filter java
 
-# .venv/bin/python scripts/search_faiss.py \
-#   --index_dir index/global \
-#   --query_file samples/similar.java \
-#   --k 5 --lang_filter java \
-#   --show_top1_code --save_top1_to samples/similar_top1_match_reranked.java \
-#   --alpha 0.7 --min_jaccard 0.10 --len_lo 0.5 --len_hi 2.0
+"""
+.venv/bin/python scripts/search_faiss.py \
+  --index_dir index/global \
+  --query_file samples/similar.java \
+  --k 5 --lang_filter java \
+  --show_top1_code --save_top1_to samples/similar_top1_match_reranked.java \
+  --alpha 0.7 --min_jaccard 0.10 --len_lo 0.5 --len_hi 2.0
+"""
 
 
 #!/usr/bin/env python
@@ -27,6 +29,8 @@ import numpy as np
 import torch
 from datasets import load_from_disk
 from transformers import AutoModel, AutoTokenizer
+
+import duckdb
 
 DIM = 768
 
@@ -121,15 +125,12 @@ def embed(code: str, tok, model, device):
 
 
 def fetch_code_by_uid(lang: str, split: str, uid: str) -> str | None:
-    pair_id_str, side_str = uid.split("_")
-    pair_id = int(pair_id_str)
-    side = int(side_str)
-    ds = load_from_disk(f"data/cleaned/{lang}/{split}")
-    hit = ds.filter(lambda r: r["id"] == pair_id)
-    if len(hit) == 0:
-        return None
-    row = hit[0]
-    return row["func1"] if side == 1 else row["func2"]
+    p = f"parquet/cleaned/{lang}/{split}/*.parquet"
+    con = duckdb.connect()
+    row = con.execute(
+        "SELECT code FROM read_parquet(?) WHERE uid = ? LIMIT 1", [p, uid]
+    ).fetchone()
+    return row[0] if row else None
 
 
 def identifiers(code: str, lang: str):

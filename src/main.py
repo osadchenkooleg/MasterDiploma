@@ -5,4 +5,4 @@ app = FastAPI(title="Plagiarism API")
 
 @app.get("/")
 async def root():
-    return {"status": "gay"}
+    return {"status": "Ok"}
