@@ -1,11 +1,11 @@
 from pathlib import Path
 
 import duckdb
+from app.common.constants import PLAG_DB_PATH
 
-DB_PATH = "duckdb/plag.db"
 Path("duckdb").mkdir(exist_ok=True)
 
-con = duckdb.connect(DB_PATH)  # file-backed, or ":memory:"
+con = duckdb.connect(PLAG_DB_PATH)  # file-backed, or ":memory:"
 con.execute("INSTALL vss; LOAD vss;")
 con.execute("SET hnsw_enable_experimental_persistence = true;")  # optional, see caveats
 
