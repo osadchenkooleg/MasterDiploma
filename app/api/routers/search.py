@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, Response
 
 from app.api.deps import get_codes_repo
+from app.api.deps_clickhouse import get_codes_repo_ch
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -13,7 +14,7 @@ def search(
     page: int = 1,
     page_size: int = 20,
     languages: Optional[List[str]] = Query(default=None),
-    repo=Depends(get_codes_repo),
+    repo=Depends(get_codes_repo_ch),
     response: Response = None,
 ):
     page = max(page, 1)

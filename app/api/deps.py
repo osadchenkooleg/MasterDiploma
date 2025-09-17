@@ -1,9 +1,11 @@
-from app.infrastructure.db.duckdb.repos import CodesRepo, EmbeddingsRepo, LanguagesRepo
-from app.infrastructure.embedings.model_codebert import CodeEmbeddingModel
+from app.infrastructure.db.clickhouse.codes_repo import CodesRepoCH
+from app.infrastructure.db.clickhouse.embeddings_repo import EmbeddingsRepoCH
+from app.infrastructure.db.clickhouse.languages_repo import LanguagesRepoCH
+from app.infrastructure.embeddings.model_codebert import CodeEmbeddingModel
 
-_lang_repo = LanguagesRepo()
-_codes_repo = CodesRepo()
-_emb_repo = EmbeddingsRepo()
+_lang_repo = LanguagesRepoCH()
+_codes_repo = CodesRepoCH()
+_emb_repo = EmbeddingsRepoCH()
 _embed_model = None
 
 
