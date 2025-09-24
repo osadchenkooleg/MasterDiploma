@@ -12,8 +12,8 @@ def storage_health():
     counts = c.query(
         """
       SELECT
-        (SELECT count() FROM codebase.codes_v2)  AS codes_v2,
-        (SELECT count() FROM codebase.embeddings_v2) AS emb_v2
+        (SELECT count() FROM codebase.codes_v4)  AS codes_v2,
+        (SELECT count() FROM codebase.embeddings_v3) AS emb_v2
     """
     ).first_row
-    return {"codes_v2": int(counts[0]), "embeddings_v2": int(counts[1])}
+    return {"codes_v4": int(counts[0]), "embeddings_v3": int(counts[1])}

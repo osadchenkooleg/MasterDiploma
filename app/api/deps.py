@@ -1,30 +1,19 @@
-# from app.infrastructure.db.clickhouse.codes_repo import CodesRepoCH
-# from app.infrastructure.db.clickhouse.embeddings_repo import EmbeddingsRepoCH
-# from app.infrastructure.db.clickhouse.languages_repo import LanguagesRepoCH
+# app/api/deps.py
+import os
+from functools import lru_cache
+
 from app.infrastructure.embeddings.model_codebert import CodeEmbeddingModel
 
+EMB_MODEL = os.getenv("EMB_MODEL", "microsoft/codebert-base")
+EMB_POOL = os.getenv("EMB_POOL", "mean")
+EMB_TRANSFORM_VER = int(os.getenv("EMB_TRANSFORM_VER", "2"))  # <-- default 2
 
-#
-# _lang_repo = LanguagesRepoCH()
-# _codes_repo = CodesRepoCH()
-# _emb_repo = EmbeddingsRepoCH()
-# _embed_model = None
-#
-#
-# def get_languages_repo():
-#     return _lang_repo
-#
-#
-# def get_codes_repo():
-#     return _codes_repo
-#
-#
-# def get_embeddings_repo():
-#     return _emb_repo
-#
-#
-def get_embed_model():
-    global _embed_model
-    if _embed_model is None:
-        _embed_model = CodeEmbeddingModel()
-    return _embed_model
+
+@lru_cache(maxsize=1)
+def get_embed_model() -> CodeEmbeddingModel:
+    m = CodeEmbeddingModel(model_name=EMB_MODEL)
+    # attach metadata so routers/repos can read it
+    m.model_name = EMB_MODEL
+    m.pooling = EMB_POOL
+    m.transform_ver = EMB_TRANSFORM_VER
+    return m
