@@ -33,3 +33,5 @@ parquet/
 # env files
 .env
 .envrc
+/clickhouse/logs/clickhouse-server.err.log
+/clickhouse/logs/clickhouse-server.log

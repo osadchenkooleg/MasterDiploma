@@ -1,0 +1,4 @@
+func (s *CacheBehavior) SetSmoothStreaming(v bool) *CacheBehavior {
+	s.SmoothStreaming = &v
+	return s
+}
