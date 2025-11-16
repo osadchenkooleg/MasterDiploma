@@ -2,6 +2,7 @@
 import os
 from functools import lru_cache
 
+from app.domain.boilerplate_filter import BoilerplateFilter
 from app.infrastructure.embeddings.model_codebert import CodeEmbeddingModel
 
 EMB_MODEL = os.getenv("EMB_MODEL", "microsoft/codebert-base")
@@ -17,3 +18,8 @@ def get_embed_model() -> CodeEmbeddingModel:
     m.pooling = EMB_POOL
     m.transform_ver = EMB_TRANSFORM_VER
     return m
+
+
+@lru_cache(maxsize=1)
+def get_boilerplate_filter() -> BoilerplateFilter:
+    return BoilerplateFilter()

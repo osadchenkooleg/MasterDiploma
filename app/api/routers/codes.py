@@ -2,7 +2,7 @@ import ulid
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel
 
-from app.api.deps import get_embed_model
+from app.api.deps import get_boilerplate_filter, get_embed_model
 from app.api.deps_clickhouse import get_codes_repo_ch, get_embeddings_repo_ch
 
 
@@ -20,6 +20,7 @@ async def add_code(
     codes=Depends(get_codes_repo_ch),  # CodesRepoCH (v4)
     embs=Depends(get_embeddings_repo_ch),  # EmbeddingsRepoCH (v3)
     model=Depends(get_embed_model),
+    boiler=Depends(get_boilerplate_filter),
 ):
     # Read & decode file (UTF-8 preferred; tolerate errors)
     raw = await file.read()
@@ -41,7 +42,9 @@ async def add_code(
     codes.insert(code_id, lang, code, source="api")
 
     # Compute and store embedding in embeddings_v3
-    vec = model.encode(code)
+    filtered = boiler.filter_for_embedding(code, lang)
+    vec = model.encode(filtered)
+
     embs.insert(code_id, vec, lang=lang, split="")
 
     return AddCodeResponse(id=code_id)

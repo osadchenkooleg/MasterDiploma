@@ -31,3 +31,14 @@ CREATE TABLE IF NOT EXISTS codebase.embeddings_v3
 ENGINE = MergeTree
 ORDER BY (code_id, created_at)
 SETTINGS index_granularity = 8192;
+
+CREATE TABLE IF NOT EXISTS codebase.stoplist_shingles
+(
+  lang    LowCardinality(String),
+  shingle String,
+  df      UInt64
+)
+ENGINE = MergeTree
+ORDER BY (lang, df, shingle)
+SETTINGS index_granularity = 8192;
+

@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import math
 import os
-import time
 from typing import List, Tuple
 
 import numpy as np
 from clickhouse_connect import get_client
 
+from app.domain.light_normalize import normalize_code
 from app.infrastructure.embeddings.model_codebert import CodeEmbeddingModel
-from app.preprocess.light_normalize import normalize_code
 
 # ===============================
 # Конфігурація через ENV

@@ -12,7 +12,7 @@ import numpy as np
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
-from app.api.deps import get_embed_model
+from app.api.deps import get_boilerplate_filter, get_embed_model
 from app.api.deps_clickhouse import get_codes_repo_ch, get_embeddings_repo_ch
 
 logger = logging.getLogger("uniqueness")
@@ -54,7 +54,7 @@ def _model_meta(model) -> ModelMeta:
     return ModelMeta(
         name=getattr(model, "model_name", "microsoft/codebert-base"),
         pool=getattr(model, "pooling", "mean"),
-        ver=int(getattr(model, "transform_ver", 2)),
+        ver=int(getattr(model, "transform_ver", 3)),
     )
 
 
@@ -186,6 +186,7 @@ async def check_uniqueness_file(
     embs=Depends(get_embeddings_repo_ch),  # EmbeddingsRepoCH (v3)
     codes=Depends(get_codes_repo_ch),  # CodesRepoCH (v4)
     model=Depends(get_embed_model),
+    boiler=Depends(get_boilerplate_filter),
 ):
     t0 = time.perf_counter()
 
@@ -202,7 +203,10 @@ async def check_uniqueness_file(
         )
 
     # 2) Encode query (your model already L2-normalizes output)
-    q_vec: np.ndarray = model.encode(code)
+    filtered = boiler.filter_for_embedding(code, lang)
+
+    # 3) Encode query (модель сама L2-нормалізує)
+    q_vec: np.ndarray = model.encode(filtered)
     qn = float(np.linalg.norm(q_vec))
     if not np.isfinite(qn) or qn == 0.0:
         resp = UniquenessResponse(
