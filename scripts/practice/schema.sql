@@ -127,3 +127,49 @@ CREATE TABLE codebase.eval_pairs
 )
 ENGINE = MergeTree
 ORDER BY (split, lang, id_a, id_b);
+
+CREATE TABLE IF NOT EXISTS codebase.bench_topk_vectors
+(
+  code_id String,
+  lang LowCardinality(String),
+  split LowCardinality(String),
+  model LowCardinality(String),
+  pooling LowCardinality(String),
+  transform_ver UInt16,
+  dim UInt16,
+  vector Array(Float32),
+  created_at DateTime DEFAULT now()
+)
+ENGINE = MergeTree
+ORDER BY (lang, code_id);
+
+CREATE TABLE IF NOT EXISTS codebase.bench_topk_queries
+(
+  code_id String,
+  lang LowCardinality(String),
+  split LowCardinality(String)
+)
+ENGINE = MergeTree
+ORDER BY (lang, code_id);
+
+CREATE TABLE IF NOT EXISTS codebase.bench_topk_results
+(
+  run_at         DateTime DEFAULT now(),
+  engine         LowCardinality(String),   -- 'exact' | 'hnsw'
+  corpus_table   String,
+  n              UInt32,
+  d              UInt16,
+  k              UInt16,
+  queries        UInt32,
+  params         JSON,                     -- {"ef":400,"M":16,"ef_construction":200}
+  p50_ms         Float32,
+  p95_ms         Float32,
+  mean_ms        Float32,
+  recall_mean    Nullable(Float32),
+  recall_p50     Nullable(Float32),
+  recall_p95     Nullable(Float32),
+  tau_mean       Nullable(Float32)
+)
+ENGINE = MergeTree
+ORDER BY (run_at, engine, k);
+

@@ -1,0 +1,38 @@
+-- 1) DROP при потребі
+-- DROP TABLE IF EXISTS codebase.bench_topk_vectors;
+
+CREATE TABLE IF NOT EXISTS codebase.bench_topk_vectors
+(
+  code_id String,
+  lang LowCardinality(String),
+  split LowCardinality(String),
+  model LowCardinality(String),
+  pooling LowCardinality(String),
+  transform_ver UInt16,
+  dim UInt16,
+  vector Array(Float32),
+  created_at DateTime DEFAULT now()
+)
+ENGINE = MergeTree
+ORDER BY (lang, code_id);
+
+-- 2) Заповнення рандомним піднабором із embeddings_v3.
+--    Підстав свій фільтр по мовах/сплітах/версіях.
+INSERT INTO codebase.bench_topk_vectors
+SELECT
+  e.code_id,
+  e.lang,
+  e.split,
+  e.model,
+  e.pooling,
+  e.transform_ver,
+  e.dim,
+  e.vector,
+  now()
+FROM codebase.embeddings_v3 AS e
+WHERE e.model = 'microsoft/codebert-base'
+  AND e.pooling = 'mean'
+  AND e.transform_ver = 2               -- підстав свій
+  AND e.lang IN ('go','java','python')  -- підстав свій
+ORDER BY rand()
+LIMIT 20000;                            -- 5–20k, як домовлялись
