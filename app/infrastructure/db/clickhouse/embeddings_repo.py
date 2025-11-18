@@ -11,7 +11,7 @@ EMB_MODEL = os.getenv("CH_EMB_MODEL", "microsoft/codebert-base")
 EMB_POOL = os.getenv("CH_EMB_POOL", "mean")
 EMB_TVER = int(os.getenv("CH_EMB_TRANSFORM_VER", "3"))  # <-- default 3
 
-EMB_TABLE = "codebase.embeddings_v3"
+EMB_TABLE = "codebase.embeddings_v4"
 
 
 class EmbeddingsRepoCH:
@@ -149,7 +149,7 @@ class EmbeddingsRepoCH:
               1 - cosineDistance(e.vector, {{qvec:Array(Float32)}}) AS approx_sim,
               c.code AS code_text,
               c.old_id
-            FROM codebase.embeddings_v3 e
+            FROM codebase.embeddings_v4 e
             INNER JOIN codebase.codes_v4 c ON c.code_id = e.code_id
             WHERE {where_sql}
             ORDER BY cosineDistance(e.vector, {{qvec:Array(Float32)}}) ASC, e.code_id ASC
