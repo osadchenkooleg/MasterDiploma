@@ -115,7 +115,7 @@ class CodesRepoCH:
             return None
 
         old_id, lang, split, label, code, code_id = rows[0]
-        public_id = old_id if old_id else (f"{lang}/{code_id}" if lang else code_id)
+        public_id = old_id if old_id else code_id
         return {
             "id": public_id,
             "lang": lang,
@@ -140,7 +140,8 @@ class CodesRepoCH:
             "offset": int(offset),
         }
 
-        total = client.query(
+        # Порахувати total
+        total_rows = client.query(
             f"""
             SELECT count()
             FROM {CODES_TABLE}
@@ -148,12 +149,14 @@ class CodesRepoCH:
               AND (empty(%(langs)s) OR lang IN %(langs)s)
             """,
             parameters=params,
-        ).first_item
+        ).result_rows
+        total = total_rows[0][0] if total_rows else 0
 
+        # Витягнути самі хіти
         rows = client.query(
             f"""
             SELECT
-              if(old_id != '', old_id, concat(lang, '/', code_id)) AS id,
+              code_id AS id,
               lang,
               code
             FROM {CODES_TABLE}
