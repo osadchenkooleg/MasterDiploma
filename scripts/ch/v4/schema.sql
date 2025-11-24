@@ -40,3 +40,26 @@ ENGINE = MergeTree
 ORDER BY (lang, df, shingle)
 SETTINGS index_granularity = 8192;
 
+CREATE TABLE IF NOT EXISTS codebase.threshold_policies
+(
+    policy_id UUID DEFAULT generateUUIDv4(),
+    model LowCardinality(String) DEFAULT 'microsoft/codebert-base',
+    transform_ver UInt16 DEFAULT 3,
+    lang LowCardinality(String),
+    metric LowCardinality(String) DEFAULT 'cosine_similarity',
+    t_low  Float32,
+    t_high Float32,
+    target_precision_high_zone Nullable(Float32),
+    target_recall_high_zone   Nullable(Float32),
+    f1_at_t_high              Nullable(Float32),
+    policy_comment Nullable(String),
+    created_at DateTime DEFAULT now(),
+    valid_from DateTime DEFAULT now(),
+    valid_to   Nullable(DateTime),
+    is_active  UInt8 DEFAULT 1
+)
+ENGINE = MergeTree
+ORDER BY (model, transform_ver, lang, valid_from)
+SETTINGS index_granularity = 8192;
+
+

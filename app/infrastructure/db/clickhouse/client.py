@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 from typing import Optional
 
-from clickhouse_connect import common, get_client
+from clickhouse_connect import get_client
 from pydantic import BaseModel
 
 
@@ -18,29 +18,27 @@ class ClickHouseSettings(BaseModel):
     send_receive_timeout: int = 60
 
 
-_client = None
-_lock = threading.Lock()
+# Thread-local storage: кожен потік матиме свій client
+_client_local = threading.local()
 
 
 def get_ch_client(settings: Optional[ClickHouseSettings] = None):
-    """
-    Thread-safe, process-local singleton client.
-    """
-    global _client
-    if _client is not None:
-        return _client
-    with _lock:
-        if _client is None:
-            s = settings or ClickHouseSettings()
-            _client = get_client(
-                host=s.host,
-                port=s.port,
-                username=s.username,
-                password=s.password,
-                database=s.database,
-                connect_timeout=s.connect_timeout,
-                send_receive_timeout=s.send_receive_timeout,
-            )
-            # sanity ping
-            _ = _client.query("SELECT 1").first_item
-    return _client
+    client = getattr(_client_local, "client", None)
+    if client is not None:
+        return client
+
+    s = settings or ClickHouseSettings()
+    client = get_client(
+        host=s.host,
+        port=s.port,
+        username=s.username,
+        password=s.password,
+        database=s.database,
+        connect_timeout=s.connect_timeout,
+        send_receive_timeout=s.send_receive_timeout,
+    )
+    # sanity ping
+    _ = client.query("SELECT 1").first_item
+
+    _client_local.client = client
+    return client

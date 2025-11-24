@@ -3,9 +3,7 @@ import logging
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import deps_clickhouse as chdeps
-from app.api.routers import uniqueness  # <-- new
-from app.api.routers import codes, health, languages, search
+from app.api.routers import codes, health, languages, search, thresholds, uniqueness
 from app.infrastructure.db.clickhouse.client import get_ch_client
 
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +26,8 @@ def create_app() -> FastAPI:
     app.include_router(codes.router)
     app.include_router(search.router)
     app.include_router(health.router)
-    app.include_router(uniqueness.router)  # /uniqueness/file
+    app.include_router(uniqueness.router)
+    app.include_router(thresholds.router)
 
     return app
 
